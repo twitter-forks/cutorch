@@ -244,11 +244,17 @@ template <typename T>
 struct TensorRemainderOp {
   TensorRemainderOp(T v) : val(v) {}
   __device__ __forceinline__ void operator()(T* out, T* in) {
-    *out = *in - val * (*in / val);
+    *out = *in % val;
+    if ((*out * val) < 0){
+      *out += val;
+    }
   }
 
   __device__ __forceinline__ void operator()(T* v) {
-    *v = *v - val * (*v / val);
+    *v = *v % val;
+    if ((*v * val) < 0){
+      *v += val;
+    }
   }
 
   const T val;
@@ -397,6 +403,76 @@ struct TensorTriOp {
 
   const T *start;
   const long stride0, stride1, k;
+};
+
+template <typename T>
+struct TensorLShiftConstantOp {
+  TensorLShiftConstantOp(T v) : val(v) {}
+  __device__ __forceinline__ void operator()(T* out, T* in) {
+    *out = *in << val;
+  }
+
+  __device__ __forceinline__ void operator()(T* v) {
+    *v <<= val;
+  }
+
+  const T val;
+};
+
+template <typename T>
+struct TensorRShiftConstantOp {
+  TensorRShiftConstantOp(T v) : val(v) {}
+  __device__ __forceinline__ void operator()(T* out, T* in) {
+    *out = *in >> val;
+  }
+
+  __device__ __forceinline__ void operator()(T* v) {
+    *v >>= val;
+  }
+
+  const T val;
+};
+
+template <typename T>
+struct TensorBitAndConstantOp {
+  TensorBitAndConstantOp(T v) : val(v) {}
+  __device__ __forceinline__ void operator()(T* out, T* in) {
+    *out = *in & val;
+  }
+
+  __device__ __forceinline__ void operator()(T* v) {
+    *v &= val;
+  }
+
+  const T val;
+};
+
+template <typename T>
+struct TensorBitOrConstantOp {
+  TensorBitOrConstantOp(T v) : val(v) {}
+  __device__ __forceinline__ void operator()(T* out, T* in) {
+    *out = *in | val;
+  }
+
+  __device__ __forceinline__ void operator()(T* v) {
+    *v |= val;
+  }
+
+  const T val;
+};
+
+template <typename T>
+struct TensorBitXorConstantOp {
+  TensorBitXorConstantOp(T v) : val(v) {}
+  __device__ __forceinline__ void operator()(T* out, T* in) {
+    *out = *in ^ val;
+  }
+
+  __device__ __forceinline__ void operator()(T* v) {
+    *v ^= val;
+  }
+
+  const T val;
 };
 
 #include "generic/THCTensorMathPairwise.cu"
